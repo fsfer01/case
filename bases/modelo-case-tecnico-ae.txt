@@ -1,0 +1,48 @@
+Table trusted.pedido {
+  id integer              [primary key]
+  data date               [ref: > trusted.data.data]
+  status string
+  uf_entrega string
+  vlr_total float
+}
+
+Table trusted.pedido_item {
+  id integer              [primary key]
+  id_pedido integer       [ref: > trusted.pedido.id]
+  id_produto string       [ref: > trusted.produto.id]
+  flg_cancelado string
+  qtd_produto integer
+  vlr_unitario float
+}
+
+Table trusted.produto {
+  id integer              [primary key]
+  id_marca integer        [ref: > trusted.marca.id]
+  nome string
+  descricao string
+  criado_em datetime
+  atualizado_em datetime
+}
+
+Table trusted.marca {
+  id integer [primary key]
+  nome string
+  criado_em datetime
+  atualizado_em datetime
+}
+
+Table trusted.data {
+  data integer            [primary key]
+  ano integer             [ref: < trusted.meta.ano]
+  mes string              [ref: < trusted.meta.mes]
+  dia string              [ref: < trusted.meta.dia]
+  descricao string
+}
+
+Table trusted.meta {
+  ano integer             [primary key]
+  mes string              [primary key]
+  dia string              [primary key]
+  id_marca int            [ref: > trusted.marca.id] 
+  valor float 
+}
