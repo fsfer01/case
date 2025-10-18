@@ -23,15 +23,121 @@ Com isso, vamos criar duas tabelas:
 >mais vendidos, de acordo com a quantidade de itens vendidos, por mês e pela
 >região de entrega do pedido.
 
+<details>
+  <summary>top_10_produtos_mais_vendidos.sql</summary>
+
+  
+  Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/top_10_produtos_mais_vendidos.sql
+  <img width="1258" height="628" alt="image" src="https://github.com/user-attachments/assets/03103b6d-afde-45ee-b9e3-5cecc2aa6656" />
+
+  ```sql
+ WITH produtos_mais_vendidos_por_mes_e_uf_de_entrega AS (
+
+  SELECT
+  ano_do_pedido,
+  mes_do_pedido,
+  nome_do_produto,
+  uf_entrega,
+  SUM(quantidade_do_produto) AS qtd_de_itens_vendidos,
+  ROW_NUMBER() OVER (
+      PARTITION BY ano_do_pedido, mes_do_pedido, uf_entrega
+      ORDER BY SUM(quantidade_do_produto) DESC
+  ) AS ranking
+
+  FROM `trusted.vw_pedidos_e_itens_analitico`
+
+  WHERE 1=1
+  AND flag_cancelado <> 'S'
+
+  GROUP BY 
+    ano_do_pedido,
+    mes_do_pedido,
+    nome_do_produto,
+    uf_entrega
+  
+)
+
+SELECT
+ano_do_pedido,
+mes_do_pedido,
+nome_do_produto,
+uf_entrega,
+qtd_de_itens_vendidos,
+ranking
+
+
+FROM produtos_mais_vendidos_por_mes_e_uf_de_entrega
+WHERE 1=1
+AND ranking <= 10
+  
+ORDER BY ano_do_pedido ASC, mes_do_pedido ASC, uf_entrega ASC, qtd_de_itens_vendidos DESC, ranking ASC
+```
+</details>
+
 
 # Pergunta 2
->Pensando em identificar os produtos que estão sendo os best sellers, todos os
->stakeholders entenderam que vão precisar de uma lista com o top 10 produtos
->mais vendidos, de acordo com a quantidade de itens vendidos, por mês e pela
->região de entrega do pedido.
+>O stakeholder da área de importação, já está planejando a compra dos produtos
+>da categoria de Corrida para o próximo ano e quer saber qual foi a variação de
+>todas as categorias, que tivemos nas vendas de Abril do ano de 2024 comparado
+>com as vendas do mês anterior, por categoria
 
-# Pergunta 3
->Pensando em identificar os produtos que estão sendo os best sellers, todos os
->stakeholders entenderam que vão precisar de uma lista com o top 10 produtos
->mais vendidos, de acordo com a quantidade de itens vendidos, por mês e pela
->região de entrega do pedido.
+<details>
+  <summary>variacao_de_vendas_de_marco_ate_abril_2024_por_categoria.sql</summary>
+
+  
+  Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/variacao_de_vendas_de_marco_ate_abril_2024_por_categoria.sql
+  <img width="1186" height="232" alt="image" src="https://github.com/user-attachments/assets/bac0c0af-9592-4d8e-9617-a7f43dcb7f68" />
+
+
+  ```sql
+WITH qtd_de_itens_e_valor_total_por_categoria AS (    
+    SELECT
+    categoria_do_produto,
+    SUM(CASE WHEN ano_do_pedido = 2024 AND mes_do_pedido = 3 THEN quantidade_do_produto ELSE 0 END) AS itens_total_2024_03,
+    SUM(CASE WHEN ano_do_pedido = 2024 AND mes_do_pedido = 4 THEN quantidade_do_produto ELSE 0 END) AS itens_total_2024_04,    
+    SUM(CASE WHEN ano_do_pedido = 2024 AND mes_do_pedido = 3 THEN valor_total ELSE 0 END)           AS valor_total_2024_03,
+    SUM(CASE WHEN ano_do_pedido = 2024 AND mes_do_pedido = 4 THEN valor_total ELSE 0 END)           AS valor_total_2024_04
+    FROM `trusted.vw_pedidos_e_itens_analitico`
+    
+    WHERE 1=1
+    AND flag_cancelado <> 'S'
+    AND ano_do_pedido = 2024
+    AND mes_do_pedido IN (3,4)
+    
+    GROUP BY categoria_do_produto
+)
+
+SELECT
+categoria_do_produto,
+valor_total_2024_03                                                     AS faturamento_marco_2024,
+valor_total_2024_04                                                     AS faturamento_abril_2024,
+ROUND(COALESCE(((valor_total_2024_04 - valor_total_2024_03) * 100.0 
+    / NULLIF(valor_total_2024_03, 0)), 0), 2)                           AS variacao_percentual_faturamento,
+
+itens_total_2024_03                                                     AS itens_vendidos_marco_2024,
+itens_total_2024_04                                                     AS itens_vendidos_abril_2024,
+    ROUND(COALESCE(((itens_total_2024_04 - itens_total_2024_03) * 100.0 
+    / NULLIF(itens_total_2024_03, 0)), 0),2)                            AS variacao_percentual_itens_vendidos
+
+FROM qtd_de_itens_e_valor_total_por_categoria
+```
+</details>
+
+
+# Pergunta 4
+>No Grupo xxx, seguimos as diretrizes da LGPD e tomamos muito cuidado para não
+>infringirmos a lei. Sabendo disso, suponha que você tenha a necessidade de
+>incluir as identificações dos clientes, junto com as informações de pedido. Como
+>você faria isso? Fique à vontade para incluir nas alterações de modelo proposto na
+>questão 3.
+
+Criação de uma dim_client com um identificador único que pode ser usado na empresa.
+
+# Pergunta 5
+> O Grupo xxx é uma empresa de varejo e com a ajuda de dados, estamos sempre
+> buscando encontrar melhorias e pensando em novas trilhas para desbravar.
+> Sabendo disso e utilizando o modelo de dados que você gerou no passo anterior,
+> identifique métricas (KPI’s) que você criaria para conseguir apoiar as tomadas de
+> decisões e a identificação de oportunidades para a empresa. Fique à vontade para
+> incluir nas alterações de modelo proposto na questão 3.
+
