@@ -23,13 +23,13 @@ AVG(CASE WHEN status_pedido = 'PEDIDO INTEIRO APROVADO' THEN valor_do_produto EN
 SUM(CASE WHEN status_pedido = 'PEDIDO INTEIRO APROVADO' THEN valor_total END)   			                                        AS valor_total_bruto_pedidos_aprovados,
 
 -- METRICAS DE PEDIDOS MISTOS / COM ITENS APROVADOS E CANCELADOS - VISAO APROVADO
-COUNT(DISTINCT CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'N' THEN id_do_pedido END)  AS qtd_de_pedidos_unicos_vendidos_misto,
+COUNT(DISTINCT CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'N' THEN id_do_pedido END)  AS qtd_de_pedidos_unicos_vendidos_misto_aprovado,
 SUM(CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'N' THEN quantidade_do_produto END)    AS qtd_de_itens_vendidos_misto_aprovado,
 AVG(CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'N' THEN valor_do_produto END)    		AS valor_medio_do_produto_vendidos_misto_aprovado,
 SUM(CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'N' THEN valor_total END)   		    AS valor_total_bruto_pedidos_misto_aprovado,
 
 -- METRICAS DE PEDIDOS MISTOS / COM ITENS APROVADOS E CANCELADOS - VISAO CANCELADO
-COUNT(DISTINCT CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'S' THEN id_do_pedido END)  AS qtd_de_pedidos_unicos_vendidos_misto,
+COUNT(DISTINCT CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'S' THEN id_do_pedido END)  AS qtd_de_pedidos_unicos_vendidos_misto_cancelado,
 SUM(CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'S' THEN quantidade_do_produto END)    AS qtd_de_itens_vendidos_misto_cancelado,
 AVG(CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'S' THEN valor_do_produto END)    		AS valor_medio_do_produto_vendidos_misto_cancelado,
 SUM(CASE WHEN status_pedido = 'PEDIDO COM ITENS APROVADOS E CANCELADOS' AND flag_cancelado = 'S' THEN valor_total END)   		    AS valor_total_bruto_pedidos_misto_cancelado,
