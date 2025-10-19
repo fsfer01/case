@@ -12,8 +12,9 @@ Com isso, vamos criar duas tabelas:
 
 | TABELA | DESCRIÇÃO |
 | --- | --- |
-| refined.report_vendas_nivel_itens | Essa tabela foi desenvovida na maior granularidade possível, sendo:<br>- data_do_pedido <br>- mes_do_pedido <br>- ano_do_pedido <br>- categoria_do_produto <br>- marca_do_produto <br>- nome_do_produto <br> Como essa tabela está no nível de item do pedido, nela, não conseguimos ver informações como: qtd_de_pedido. Pois um pedido pode ter mais de dois item, e isso poderia gerar confusão.|
-| refined.report_vendas_nivel_pedidos | Essa tabela foi desenvolvida na menor granularidade, sendo: <br>- data_do_pedido <br>- mes_do_pedido <br>- ano_do_pedido <br> Após essa granularidade, teremos as métricas já calculadas, que seria:   |
+| [refined.vw_pedidos_e_itens_analitico](https://github.com/fsfer01/case/blob/main/consultas_sql_trusted/trusted_vw_pedidos_e_itens_analitico.sql) | Um processo intermediário. É nele que realizamos as normalizações necessárias e os tratamentos. Após isso, vamos usar essa processo para criar os produtos na refined. |
+| [refined.vendas_report_produtos](https://github.com/fsfer01/case/blob/main/consultas_sql_refined/refined_vendas_report_produtos.sql) | Essa tabela foi desenvovida na maior granularidade possível, sendo:<br>- data_do_pedido <br>- mes_do_pedido <br>- ano_do_pedido <br>- categoria_do_produto <br>- marca_do_produto <br>- nome_do_produto <br> Como essa tabela está no nível de item do pedido, nela, não conseguimos ver informações como: qtd_de_pedido. Pois um pedido pode ter mais de dois item, e isso poderia gerar confusão.|
+| [refined.report_pedidos](https://github.com/fsfer01/case/blob/main/consultas_sql_refined/refined_vendas_report_pedidos.sql) | Essa tabela foi desenvolvida na menor granularidade, sendo: <br>- data_do_pedido <br>- mes_do_pedido <br>- ano_do_pedido <br> Após essa granularidade, teremos as métricas já calculada.|
 
 
 
@@ -138,7 +139,9 @@ Eu pensaria na criação de uma dimensão de cliente. Ela teria informações do
 > buscando encontrar melhorias e pensando em novas trilhas para desbravar.
 > Sabendo disso e utilizando o modelo de dados que você gerou no passo anterior,
 > identifique métricas (KPI’s) que você criaria para conseguir apoiar as tomadas de
-> decisões e a identificação de oportunidades para a empresa. Fique à vontade para
+> decisões e a identificação de oportunidades para a empresa.
+> Fique à vontade para
+incluir nas alterações de modelo proposto na questão 3
 
 
 <details>
@@ -146,7 +149,8 @@ Eu pensaria na criação de uma dimensão de cliente. Ela teria informações do
 
   
   Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/pergunta5_conversao_.sql
-  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta2.jpg" />
+  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta5.png" />
+  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta5sql.png" />
 
 
   ```sql
@@ -196,4 +200,82 @@ ORDER BY data_do_pedido ASC;
 ```
 </details>
 
+<details>
+  <summary>pergunta5_acompanhamento_de_metas.sql</summary>
+
+  
+  Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/pergunta5_acompanhamento_de_metas.sql
+  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta5_metas.jpg" />
+
+  ```sql
+-- OBS: NO SQLITE, NÃO TEMOS ALGUMAS FUNÇõES QUE DEIXARIA O CÓDIGO MAIS LEGÍVEL. ENTÃO, QUAL É A LÓGICA AQUI:
+-- DIARIZO A META PELA QUANTIDADE DE DIAS, TIPO: valor / LAST_DAY(data)
+
+WITH meta_diarizada_por_marca AS (
+
+  SELECT
+  d.data                                                                                                                          AS data,
+  marca.nome                                                                                                                      AS marca,
+  ROUND(m.vlr_meta / CAST(strftime('%d', date(m.ano || '-' || printf('%02d', m.mes) || '-01', '+1 month', '-1 day')) AS REAL), 2) AS vlr_meta_diaria
+
+  FROM 'trusted.meta'       AS m
+  INNER JOIN 'trusted.data' AS d      ON d.ano = m.ano AND d.mes = m.mes
+  LEFT JOIN 'trusted.marca' AS marca  ON  m.id_marca = marca.id
+  
+  ORDER BY m.id_marca, d.data
+),
+
+realizado_diarizado_por_marca AS (
+  SELECT
+  data_do_pedido                                          	AS data,
+  ano_do_pedido                                           	AS ano_do_pedido,
+  mes_do_pedido                                           	AS mes_do_pedido,
+  marca_do_produto                                        	AS marca,
+  SUM(COALESCE(valor_total_bruto_pedidos_aprovados,0.00))	AS valor_total_bruto_pedidos_aprovados_por_marca
+
+  FROM 'refined.vendas_report_produtos' 
+
+  GROUP BY 
+  data_do_pedido,
+  marca_do_produto
+),
+
+final AS (
+
+  SELECT
+  realizado_diarizado_por_marca.data,
+  realizado_diarizado_por_marca.ano_do_pedido,
+  realizado_diarizado_por_marca.mes_do_pedido,
+  realizado_diarizado_por_marca.marca,
+  meta_diarizada_por_marca.vlr_meta_diaria                                    AS meta,
+  realizado_diarizado_por_marca.valor_total_bruto_pedidos_aprovados_por_marca AS realizado,
+  ROUND(1.0 * realizado_diarizado_por_marca.valor_total_bruto_pedidos_aprovados_por_marca 
+    / NULLIF(meta_diarizada_por_marca.vlr_meta_diaria,0) , 2)                 AS atingimento
+
+
+  FROM realizado_diarizado_por_marca
+  LEFT JOIN meta_diarizada_por_marca  ON realizado_diarizado_por_marca.data = meta_diarizada_por_marca.data
+                                      AND realizado_diarizado_por_marca.marca = meta_diarizada_por_marca.marca
+
+
+)
+
+SELECT
+ano_do_pedido,
+mes_do_pedido,
+marca,
+SUM(meta)                                               AS meta,
+SUM(realizado)                                          AS realizado,
+ROUND(1.0 * SUM(realizado) / NULLIF(SUM(meta),0) , 2)   AS atingimento
+
+FROM final
+
+GROUP BY 
+  ano_do_pedido,
+  mes_do_pedido,
+  marca
+  
+ ORDER BY 1 ASC, 2 ASC, 3 ASC 
+```
+</details>
 
