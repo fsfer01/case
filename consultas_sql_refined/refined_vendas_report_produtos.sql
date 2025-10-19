@@ -1,5 +1,9 @@
 -- TABELA AGRUPADA COM O MÁXIMO POSSÍVEL DE GRANULARIDADE.
 
+DROP TABLE IF EXISTS `refined.vendas_report_produtos`;
+
+CREATE TABLE `refined.vendas_report_produtos` AS 
+
 SELECT
 -- GRANULARIDADE
 data_do_pedido,
@@ -38,3 +42,4 @@ GROUP BY
     categoria_do_produto,
     marca_do_produto,
     nome_do_produto
+;
