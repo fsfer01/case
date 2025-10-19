@@ -1,4 +1,4 @@
--- PENSANDO EM UMA VIEW ANALÍTICA JÁ NORMALIZADA, A IDEIA É ESSA MODELAGEM SER A PRINCIPAL PARA OS PRÓXIMOS PASSOS.
+-- PENSANDO EM UMA VIEW ANALÍTICA JÁ NORMALIZADA, A IDEIA É ESSA MODELAGEM SER A PRINCIPAL PARA OS PRÓXIMOS PASSOS, SEJA USANDO ELA PARA UMA ANÁLISE TRANSACIONAL, OU PARA USO DE TABELAS NA REFINED
 
 DROP VIEW IF EXISTS `trusted.vw_pedidos_e_itens_analitico`;
 
@@ -40,7 +40,7 @@ status_pedido AS (
         AND SUM(CASE WHEN flag_cancelado = 'N' THEN 1 ELSE 0 END) > 0         THEN 'PEDIDO COM ITENS APROVADOS E CANCELADOS'
       WHEN SUM(CASE WHEN flag_cancelado IS NULL THEN 1 ELSE 0 END) = COUNT(*) THEN 'PEDIDO INTEIRO PENDENTE'
       ELSE 'ANALISAR'
-    END AS status_pedido
+    END                                                      AS status_pedido
   
   FROM normalizacao
   GROUP BY id_do_pedido
@@ -62,7 +62,4 @@ pedidos.valor_do_produto,
 pedidos.valor_total
 
 FROM normalizacao AS pedidos
-LEFT JOIN status_pedido ON pedidos.id_do_pedido = status_pedido.id_do_pedido
-  
-
-; 
+LEFT JOIN status_pedido ON pedidos.id_do_pedido = status_pedido.id_do_pedido;

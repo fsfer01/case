@@ -1,4 +1,4 @@
--- TABELA RESUMIDA A QUANTIDADE DE PEDIDOS. Através da quantidade de possível, conseguirmos ver as métricas agrupadas.
+-- TABELA RESUMIDA A QUANTIDADE DE PEDIDOS. Através da quantidade de pedidos, conseguirmos ver as métricas agrupadas e quebradas.
 
 SELECT
 -- GRANULARIDADE
