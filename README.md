@@ -1,3 +1,10 @@
+# Como reproduzir:
+1. Salve esse arquivo no sua máquina:
+2. Abra ele usando o https://sqliteonline.com/ na opção SQLlite
+![como_reproduzir](https://github.com/user-attachments/assets/c31145cd-b18e-49c4-9308-f487d4092a77)
+
+
+
 # Proposta de modelagem / Pergunta 3
 
 >Ao terminar de conversar com os stakeholders, você percebe que o modelo de dados atual pode ser melhorado para facilitar a >geração dos dados que os stakeholders pediram e até mesmo possibilitar a disponibilização de outros dados no futuro. >Analisando o modelo atual, identifique e monte uma proposta com possíveis melhorias nele. Fique à vontade para adicionar ou >remover tabelas e colunas do modelo.
