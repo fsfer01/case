@@ -1,7 +1,7 @@
 # Como reproduzir:
-1. Salve esse arquivo no sua máquina:
+1. Salve esse arquivo no sua máquina: https://github.com/fsfer01/case/blob/main/bases/case.db
 2. Abra ele usando o https://sqliteonline.com/ na opção SQLlite
-![como_reproduzir](https://github.com/user-attachments/assets/c31145cd-b18e-49c4-9308-f487d4092a77)
+![como_reproduzir](https://github.com/fsfer01/case/blob/main/imgs/como_reproduzir.gif)
 
 
 
