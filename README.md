@@ -13,7 +13,7 @@ Com isso, vamos criar duas tabelas:
 | TABELA | DESCRIÇÃO |
 | --- | --- |
 | refined.report_vendas_nivel_itens | Essa tabela foi desenvovida na maior granularidade possível, sendo:<br>- data_do_pedido <br>- mes_do_pedido <br>- ano_do_pedido <br>- categoria_do_produto <br>- marca_do_produto <br>- nome_do_produto <br> Como essa tabela está no nível de item do pedido, nela, não conseguimos ver informações como: qtd_de_pedido. Pois um pedido pode ter mais de dois item, e isso poderia gerar confusão.|
-| refined.report_vendas_nivel_pedidos | Nome das colunas, seu tipo e sua descrição |
+| refined.report_vendas_nivel_pedidos | Essa tabela foi desenvolvida na menor granularidade, sendo: <br>- data_do_pedido <br>- mes_do_pedido <br>- ano_do_pedido <br> Após essa granularidade, teremos as métricas já calculadas, que seria:   |
 
 
 
@@ -131,7 +131,7 @@ FROM qtd_de_itens_e_valor_total_por_categoria
 >você faria isso? Fique à vontade para incluir nas alterações de modelo proposto na
 >questão 3.
 
-Criação de uma dim_client com um identificador único que pode ser usado na empresa.
+Eu pensaria na criação de uma dimensão de cliente. Ela teria informações do cliente, todas mascaradas. E para ter acesso, seria necessário um ticket, e após aprovação do ticket, o usuário seria incluído em um grupo de acesso que teria acesso a determinadas colunas. Essa dimensão não seria usada em modelagens. Ela seria separada, e cada necessidade seria entendida antes da aprovação. Após aprovação, o cliente teria autonimia de enriquecer as informações através do JOIN.
 
 # Pergunta 5
 > O Grupo xxx é uma empresa de varejo e com a ajuda de dados, estamos sempre
@@ -139,5 +139,61 @@ Criação de uma dim_client com um identificador único que pode ser usado na em
 > Sabendo disso e utilizando o modelo de dados que você gerou no passo anterior,
 > identifique métricas (KPI’s) que você criaria para conseguir apoiar as tomadas de
 > decisões e a identificação de oportunidades para a empresa. Fique à vontade para
-> incluir nas alterações de modelo proposto na questão 3.
+
+
+<details>
+  <summary>pergunta5_conversao_.sql</summary>
+
+  
+  Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/pergunta5_conversao_.sql
+  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta2.jpg" />
+
+
+  ```sql
+WITH base_agrupada AS (
+
+  SELECT 
+  data_do_pedido,
+  -- VISÃO DE PEDIDOS
+  SUM(qtd_de_pedidos_unicos_vendidos)                                                                                 AS qtd_total_pedidos_realizados,
+  SUM(qtd_de_pedidos_unicos_vendidos_aprovados )                                                                      AS qtd_total_pedidos_aprovados,
+  SUM(qtd_de_pedidos_unicos_vendidos_misto_cancelado + qtd_de_pedidos_unicos_vendidos_cancelados)                     AS qtd_total_pedidos_cancelados,
+  -- VISÃO DE FATURAMENTO
+  SUM(COALESCE(valor_total_bruto_pedidos,0.00))                                                                       AS valor_total_pedidos_realizados,
+  SUM(COALESCE(valor_total_bruto_pedidos_aprovados,0.00))                                                             AS valor_total_pedidos_aprovados,
+  SUM(COALESCE(valor_total_bruto_pedidos_misto_cancelado,0.00) + COALESCE(valor_total_bruto_pedidos_cancelados,0.00)) AS valor_total_pedidos_cancelados,
+  -- VISÃO DE ITENS
+  SUM(COALESCE(qtd_de_itens_vendidos,0.00))                                                                           AS qtd_total_itens_vendidos,
+  SUM(COALESCE(qtd_de_itens_vendidos_aprovado,0.00))                                                                  AS qtd_total_itens_vendidos_aprovados,
+  SUM(COALESCE(qtd_de_itens_vendidos_misto_cancelado,0.00) + COALESCE(qtd_de_itens_vendidos_cancelados,0.00))         AS qtd_total_itens_vendidos_cancelados
+  
+  FROM 'refined.vendas_report_pedidos'
+  
+  GROUP BY  data_do_pedido
+)
+
+SELECT
+data_do_pedido,
+
+-- PEDIDOS
+qtd_total_pedidos_realizados,
+qtd_total_pedidos_aprovados,
+qtd_total_pedidos_cancelados,
+ROUND(1.0 * qtd_total_pedidos_aprovados / NULLIF(qtd_total_pedidos_realizados,0) , 2)     AS conversao_pedidos,
+-- VALOR
+valor_total_pedidos_realizados,
+valor_total_pedidos_aprovados,
+valor_total_pedidos_cancelados,
+ROUND(1.0 * valor_total_pedidos_aprovados / NULLIF(valor_total_pedidos_realizados,0) , 2) AS conversao_valor,
+-- ITENS
+qtd_total_itens_vendidos,
+qtd_total_itens_vendidos_aprovados,
+qtd_total_itens_vendidos_cancelados,
+ROUND(1.0 * qtd_total_itens_vendidos_aprovados / NULLIF(qtd_total_itens_vendidos,0) , 2)  AS conversao_itens
+
+FROM base_agrupada
+ORDER BY data_do_pedido ASC;
+```
+</details>
+
 
