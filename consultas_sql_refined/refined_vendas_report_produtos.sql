@@ -13,6 +13,11 @@ categoria_do_produto,
 marca_do_produto,
 nome_do_produto,
 
+-- MÉTRICAS TOTAL
+SUM(quantidade_do_produto) 													  	                                                    AS qtd_de_itens_vendidos,
+AVG(valor_do_produto) 														  	                                                    AS valor_medio_do_produto_vendidos,
+SUM(valor_total)   		                                        				                                                    AS valor_total_bruto_pedidos,
+
 -- METRICAS DE PEDIDOS APROVADOS / STATUS "PEDIDO INTEIRO APROVADO"
 SUM(CASE WHEN status_pedido = 'PEDIDO INTEIRO APROVADO' THEN quantidade_do_produto END)                                             AS qtd_de_itens_vendidos_aprovado,
 AVG(CASE WHEN status_pedido = 'PEDIDO INTEIRO APROVADO' THEN valor_do_produto END)        	                                        AS valor_medio_do_produto_vendidos_aprovados,
