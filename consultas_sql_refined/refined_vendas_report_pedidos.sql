@@ -1,5 +1,9 @@
 -- TABELA RESUMIDA A QUANTIDADE DE PEDIDOS. Através da quantidade de pedidos, conseguirmos ver as métricas agrupadas e quebradas.
 
+DROP TABLE IF EXISTS `refined.vendas_report_pedidos`;
+
+CREATE TABLE `refined.vendas_report_pedidos` AS 
+
 SELECT
 -- GRANULARIDADE
 data_do_pedido,
@@ -42,3 +46,4 @@ GROUP BY
     data_do_pedido,
     mes_do_pedido,
     ano_do_pedido
+;
