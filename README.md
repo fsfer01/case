@@ -28,7 +28,7 @@ Com isso, vamos criar duas tabelas:
 
   
   Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/top_10_produtos_mais_vendidos.sql
-  <img width="1258" height="628" alt="image" src="https://github.com/user-attachments/assets/03103b6d-afde-45ee-b9e3-5cecc2aa6656" />
+  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta1.jpg" />
 
   ```sql
  WITH produtos_mais_vendidos_por_mes_e_uf_de_entrega AS (
@@ -86,7 +86,7 @@ ORDER BY ano_do_pedido ASC, mes_do_pedido ASC, uf_entrega ASC, qtd_de_itens_vend
 
   
   Código SQL aqui: https://github.com/fsfer01/case/blob/main/perguntas/variacao_de_vendas_de_marco_ate_abril_2024_por_categoria.sql
-  <img width="1186" height="232" alt="image" src="https://github.com/user-attachments/assets/bac0c0af-9592-4d8e-9617-a7f43dcb7f68" />
+  <img width="1258" height="628" alt="image" src="https://github.com/fsfer01/case/blob/main/imgs/pergunta2.jpg" />
 
 
   ```sql
